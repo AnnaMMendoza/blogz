@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Just Share It!</h1>
+
+    <hr />
+
+    <form method='post'>
+        <label>
+            Post Title:
+            <input type="text" name='title' placeholder="Blog Post Title" style="width: 500px" />
+            {% if title_error|length != 0 %}
+            <span class="error">{{title_error}}</span>
+            {% endif %}
+        </label>
+        
+        <br /> <br />
+
+        <label>
+            Blog Post:
+        </label>
+        <br />
+            <textarea name='body' placeholder="Enter your blog post here" value="{{body}}"  style="width: 800px; height: 100px"></textarea>
+            {% if post_error|length != 0 %}
+            <span class="error">{{post_error}}</span>
+            {% endif %}<br />
+        <input type="submit" value='Submit Post' />
+    </form>
+    <br />
+    <hr />
+
+    <h1>~Just Share It! Posts~</h1>
+    <!-- Posts -->
+    {% if new_post %}
+        <ul>
+            <li>
+                {% for post in new_post %}
+                <p>{{new_post.title}}</p>
+                <p>{{new_post.body}}</p>
+                {% endfor %}
+            </li>
+        </ul>
+    {% else %}
+    <p>No Posts Submitted Yet</p>
+    
+    {% endif %}    
+
+{% endblock %}

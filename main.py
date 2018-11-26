@@ -38,23 +38,31 @@ def add_post(): # adds the post to the database, redirects to the main blog page
 
         if title == "":
             title_error = "Please enter a title for your post"
+            flash('Please enter a title for your post')
         if len(title) > 120:
             title_error = "Blog title is limited to 120 characters"
+            flash('Blog title is limited to 120 characters')
         if body == "":
             post_error = "Please enter your blog post here"
+            flash('Please enter your blog post here')
         if len(body) > 500:
             post_error = "Blog post is limited to 500 characters"
+            flash('Blog post is limited to 500 characters')
         if title_error != "" and post_error != "":
+
             return render_template('newpost.html', title_error=title_error, post_error=post_error)
-        
+    
         if not title_error and not post_error:
             new_post = Blog(title, body)
             db.session.add(new_post)
             db.session.commit()
             entry = new_post.id
-        return redirect('/blog')
-    else:   
-        return render_template('newpost.html', new_post=new_post, title_error=title_error, post_error=post_error)
+            return redirect('/blog')
+    
+    return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
+
+    if request.method == 'GET':
+        return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
    
 # display all blog posts on the main page
 @app.route('/blog', methods=['POST', 'GET'])

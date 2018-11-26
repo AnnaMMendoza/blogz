@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, session, flash
+from flask import Flask, request, redirect, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -19,12 +19,12 @@ class Blog(db.Model):
         self.body = body
 
 @app.route('/', methods=['POST', 'GET']) # direct to the newpost page
-def blogs(): 
+def newposts():
     return redirect('/newpost')
 
 
 @app.route('/newpost', methods=['POST', 'GET'])
-def index(): # adds the post to the database and displays below the entry form
+def add_post(): # adds the post to the database, redirects to the main blog page once added to database
 
     new_post = None
     title = ""
@@ -51,17 +51,25 @@ def index(): # adds the post to the database and displays below the entry form
             new_post = Blog(title, body)
             db.session.add(new_post)
             db.session.commit()
-        
-    return render_template('newpost.html', new_post=new_post, title_error=title_error, post_error=post_error)
+            entry = new_post.id
+        return redirect('/blog')
+    else:   
+        return render_template('newpost.html', new_post=new_post, title_error=title_error, post_error=post_error)
    
-# display all blog posts on a new main page
-# @app.route('/blog', methods=['POST'])
-# def blogposts():
+# display all blog posts on the main page
+@app.route('/blog', methods=['POST', 'GET'])
+def index():
 
-#     new_post = request.form['new_post']
-#     new_post = Blog.query.filter_by(title=title, body=body).all()
-
-#     return render_template('blog.html', title="Just Say It!")
+    id = request.args.get("id")
+    entries = Blog.query.all()
+    
+    if not id:
+        entries = Blog.query.order_by(Blog.id.desc()).all()
+        return render_template('blog.html', entries=entries)
+    # else:
+    #     entries = Blog.query.all()
+    #     title = entry.title
+    #     body = entry.body
 
 
 if __name__=='__main__':

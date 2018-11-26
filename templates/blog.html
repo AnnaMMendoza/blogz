@@ -1,7 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Just Share It! Posts</h1>
+
+<h1>~Just Share It! Posts~</h1>
+<!-- Posts -->
+{% if entries|length == 0 %}
+<p>No Posts Submitted Yet</p>
+
+{% else %}
+    <ul>
+        <li>
+            {% for entry in entries %}
+            <h1>{{entry.title}}</h1>
+            <p>{{entry.body}}</p>
+            {% endfor %}
+        </li>
+    </ul>
+{% endif %}
 
 
 

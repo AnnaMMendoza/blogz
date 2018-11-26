@@ -10,10 +10,17 @@
   </head>
 <body>
 
-    <div>
-        <!-- These links go no where yet! -->
+    <nav>
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% for category,message in messages %}
+                <div class="alert alert-{{category}} alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                {{message|safe}}</div>
+            {% endfor %}
+        {% endwith %}
+        <!-- These links should go somewhere now! -->
         <a href="/newpost">Add New Post</a><span> | </span><a href="/blog">Main Blog Page</a>
-    </div>
+    </nav>
 
     {% block content %}
 

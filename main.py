@@ -49,7 +49,6 @@ def add_post(): # adds the post to the database, redirects to the main blog page
             post_error = "Blog post is limited to 500 characters"
             flash('Blog post is limited to 500 characters')
         if title_error != "" and post_error != "":
-
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
     
         if not title_error and not post_error:

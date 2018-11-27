@@ -11,7 +11,7 @@
     <ul>
         <li>
             {% for entry in entries %}
-            <h1>{{entry.title}}</h1>
+            <h3><a href="/displaypost?id={{entry.id}}">{{entry.title}}</a></h3>
             <p>{{entry.body}}</p>
             {% endfor %}
         </li>

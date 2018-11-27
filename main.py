@@ -50,7 +50,7 @@ def add_post(): # adds the post to the database, redirects to the main blog page
             flash('Blog post is limited to 500 characters')
         if title_error != "" and post_error != "":
 
-            return render_template('newpost.html', title_error=title_error, post_error=post_error)
+            return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
     
         if not title_error and not post_error:
             new_post = Blog(title, body)
@@ -74,11 +74,15 @@ def index():
     if not id:
         entries = Blog.query.order_by(Blog.id.desc()).all()
         return render_template('blog.html', entries=entries)
-    # else:
-    #     entries = Blog.query.all()
-    #     title = entry.title
-    #     body = entry.body
 
+# displays the single post on a separate page
+@app.route('/displaypost', methods=['GET'])
+def displaypost():
+
+    id = request.args.get("id")
+    entry = Blog.query.filter_by(id=id).first()
+
+    return render_template('displaypost.html', title=entry.title, body=entry.body)
 
 if __name__=='__main__':
     app.run()

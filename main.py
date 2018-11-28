@@ -39,15 +39,21 @@ def add_post(): # adds the post to the database, redirects to the main blog page
         if title == "":
             title_error = "Please enter a title for your post"
             flash('Please enter a title for your post')
+            
+            return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
         if len(title) > 120:
             title_error = "Blog title is limited to 120 characters"
             flash('Blog title is limited to 120 characters')
         if body == "":
             post_error = "Please enter your blog post here"
             flash('Please enter your blog post here')
+            
+            return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
+
         if len(body) > 500:
             post_error = "Blog post is limited to 500 characters"
             flash('Blog post is limited to 500 characters')
+
         if title_error != "" and post_error != "":
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
     
@@ -56,8 +62,8 @@ def add_post(): # adds the post to the database, redirects to the main blog page
             db.session.add(new_post)
             db.session.commit()
             entry = new_post.id
-            return redirect('/blog')
-    
+            return render_template('displaypost.html', title=new_post.title, body=new_post.body)
+
     return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
 
     if request.method == 'GET':
@@ -71,7 +77,7 @@ def index():
     entries = Blog.query.all()
     
     if not id:
-        entries = Blog.query.order_by(Blog.id.desc()).all()
+        entries = Blog.query.order_by(Blog.id.asc()).all()
         return render_template('blog.html', entries=entries)
 
 # displays the single post on a separate page

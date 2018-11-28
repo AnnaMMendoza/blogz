@@ -8,8 +8,8 @@
     <form method='post'>
         <label>
             Post Title:
-            <input type="text" name='title' placeholder="Blog Post Title" style="width: 500px" />
-            {% if title_error|length != 0 %}
+            <input type="text" name='title' placeholder="Blog Post Title" style="width: 500px" value="{{request.form['title']}}" />
+            {% if title_error|length != None %}
             <span class="error">{{title_error}}</span>
             {% endif %}
         </label>
@@ -20,10 +20,11 @@
             Blog Post:
         </label>
         <br />
-            <textarea name='body' placeholder="Enter your blog post here" value="{{body}}"  style="width: 800px; height: 100px"></textarea>
-            {% if post_error|length != 0 %}
+            <textarea name='body' placeholder="Enter your blog post here"  style="width: 800px; height: 100px">{{ request.form['body'] }}</textarea>
+            {% if post_error|length != None %}
             <span class="error">{{post_error}}</span>
-            {% endif %}<br />
+            {% endif %}
+        <br />
         <input type="submit" value='Submit Post' />
     </form>
     <br />

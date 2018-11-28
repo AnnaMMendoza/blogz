@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, flash
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -18,13 +18,13 @@ class Blog(db.Model):
         self.title = title
         self.body = body
 
-@app.route('/', methods=['POST', 'GET']) # direct to the newpost page
-def newposts():
-    return redirect('/newpost')
+@app.route('/', methods=['POST', 'GET']) # directs to the main blog posts page
+def all_posts():
+    return redirect('/blog')
 
 
 @app.route('/newpost', methods=['POST', 'GET'])
-def add_post(): # adds the post to the database, redirects to the main blog page once added to database
+def add_post(): # adds the post to the database, new post acceptance then redirects to that blog post's individual entry page
 
     new_post = None
     title = ""
@@ -36,26 +36,24 @@ def add_post(): # adds the post to the database, redirects to the main blog page
         title = request.form['title']
         body = request.form['body']
 
-        if title == "":
+        if title == "" and body == "":
             title_error = "Please enter a title for your post"
-            flash('Please enter a title for your post')
-            
+            post_error = "Please enter your blog post here"
+            return render_template('newpost.html', title=request.form['title'], body=request.form['body'], title_error=title_error, post_error=post_error)
+
+        if title == "":
+            title_error = "Please enter a title for your post"   
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
+
         if len(title) > 120:
             title_error = "Blog title is limited to 120 characters"
-            flash('Blog title is limited to 120 characters')
+
         if body == "":
             post_error = "Please enter your blog post here"
-            flash('Please enter your blog post here')
-            
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
 
         if len(body) > 500:
             post_error = "Blog post is limited to 500 characters"
-            flash('Blog post is limited to 500 characters')
-
-        if title_error != "" and post_error != "":
-            return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
     
         if not title_error and not post_error:
             new_post = Blog(title, body)
@@ -64,9 +62,9 @@ def add_post(): # adds the post to the database, redirects to the main blog page
             entry = new_post.id
             return render_template('displaypost.html', title=new_post.title, body=new_post.body)
 
-    return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
+    return render_template('newpost.html', title=title, body=body,  title_error=title_error, post_error=post_error)
 
-    if request.method == 'GET':
+    if request.method == 'GET': # title redirects to individual blog post page
         return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
    
 # display all blog posts on the main page
@@ -77,7 +75,7 @@ def index():
     entries = Blog.query.all()
     
     if not id:
-        entries = Blog.query.order_by(Blog.id.asc()).all()
+        entries = Blog.query.order_by(Blog.id.desc()).all()
         return render_template('blog.html', entries=entries)
 
 # displays the single post on a separate page

@@ -2,8 +2,12 @@
 
 {% block content %}
 
-<h1>~Just Share It! Posts~</h1>
+<h1><center>~Just Share It! Posts~</center></h1>
+<br>
+<hr />
+
 <!-- Posts -->
+
 {% if entries|length == 0 %}
 <p>No Posts Submitted Yet</p>
 
@@ -13,13 +17,11 @@
             {% for entry in entries %}
             <h3><a href="/displaypost?id={{entry.id}}">{{entry.title}}</a></h3>
             <p>{{entry.body}}</p>
+            <br /><hr />
             {% endfor %}
         </li>
     </ul>
 {% endif %}
-
-
-
 
 
 {% endblock %}

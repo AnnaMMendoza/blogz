@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:b@b272AzB@localhost:8889/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:blogZ4All@localhost:8889/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 app.secret_key = 'itsasecret'
@@ -13,15 +13,70 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
     body = db.Column(db.String(500))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body):
+    def __init__(self, title, body, owner):
         self.title = title
         self.body = body
+        self.owner = owner
+
+class User(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(30))
+    password = db.Column(db.String(15))
+    blogs = db.relationship('Blog', backref='owner')
+
+    def __init__(self, id, username, password, blogz):
+        self.username = username
+        self.password = password
+
+# @app.before_request
+# def require_login():
+#     allowed_routes = ['blog', 'login', 'register', 'newpost']
+#     if request.endpoint not in allowed_routes and 'username' not in session:
+#         flash('You must be logged in!')
+#         return redirect('/login')
+    
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and user.password == password: # searches for the username in the database
+            session['username'] = username # stores the username in the session
+            flash("Logged in")
+            return redirect('/blog')
+        else:
+            flash('User password incorrect, or user does not exist', 'error')
+
+    return render_template('login.html')
+
+# @app.route('/register', methods=['POST', 'GET'])
+# def register():
+#     if request.method == 'POST':
+#         username = request.form['username']
+#         password = request.form['password']
+#         verify = request.form['verify']
+
+#         # validation goes here!
+
+
+#         existing_user = User.query.filter_by(username=username).first()
+#         if not existing_user:
+#             new_user = User(username, password)
+#             db.session.add(new_user)
+#             db.session.commit()
+#             session['username'] = username
+#             return redirect('/newpost')
+#         else:
+#             return flash("Duplicate User")
+
 
 @app.route('/', methods=['POST', 'GET']) # directs to the main blog posts page
 def all_posts():
     return redirect('/blog')
-
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def add_post(): # adds the post to the database, new post acceptance then redirects to that blog post's individual entry page
@@ -56,7 +111,7 @@ def add_post(): # adds the post to the database, new post acceptance then redire
             post_error = "Blog post is limited to 500 characters"
     
         if not title_error and not post_error:
-            new_post = Blog(title, body)
+            new_post = Blog(title, body, owner)
             db.session.add(new_post)
             db.session.commit()
             entry = new_post.id
@@ -64,9 +119,6 @@ def add_post(): # adds the post to the database, new post acceptance then redire
 
     return render_template('newpost.html', title=title, body=body,  title_error=title_error, post_error=post_error)
 
-    if request.method == 'GET': # title redirects to individual blog post page
-        return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
-   
 # display all blog posts on the main page
 @app.route('/blog', methods=['POST', 'GET'])
 def index():
@@ -86,6 +138,12 @@ def displaypost():
     entry = Blog.query.filter_by(id=id).first()
 
     return render_template('displaypost.html', title=entry.title, body=entry.body)
+
+@app.route('/logout')
+def logout():
+    del session['username']
+    return redirect('/login')
+
 
 if __name__=='__main__':
     app.run()

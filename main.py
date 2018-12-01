@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, session, flash
+from flask import Flask, request, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -33,7 +33,7 @@ class User(db.Model):
 
 @app.before_request
 def require_login():
-    allowed_routes = ['login', 'register', 'blog']
+    allowed_routes = ['login', 'register', 'index', 'blog']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
     
@@ -136,11 +136,6 @@ def add_post(): # adds the post to the database, new post acceptance then redire
         title = request.form['title']
         body = request.form['body']
 
-        # if title == "" and body == "":
-        #     title_error = "Please enter a title for your post"
-        #     post_error = "Please enter your blog post here"
-        #     return render_template('newpost.html', title=request.form['title'], body=request.form['body'], title_error=title_error, post_error=post_error)
-
         if title == "":
             title_error = "Please enter a title for your post"   
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
@@ -160,14 +155,26 @@ def add_post(): # adds the post to the database, new post acceptance then redire
 
 # display all blog posts on the main page
 @app.route('/blog', methods=['POST', 'GET'])
-def index():
+def blog():
 
     id = request.args.get("id")
-    entries = Blog.query.all()
+    user_id = request.args.get("user")
     
-    if not id:
+    if not id and not user_id:
         entries = Blog.query.order_by(Blog.id.desc()).all()
         return render_template('blog.html', entries=entries)
+
+    if not user_id:
+        entries = Blog.query.filter_by(id=id).first()
+        owner_id = entries.owner_id
+        title = entry.title
+        body = entry.body
+        username = entry.owner.username
+        return render_template("blog.html", title=title, body=body, username=username, owner_id=owner_id, entry=entry)
+    else:
+        owner = User.query.filter_by(id=user_id).first()
+        entries = Blog.query.filter_by(owner=owner).order_by(Blog.id.desc()).all()
+        return render_template("blog.html", title=owner.username, entries=entries, user=user_id)
 
 # displays the single post on a separate page
 @app.route('/displaypost', methods=['GET'])
@@ -181,7 +188,12 @@ def displaypost():
 @app.route('/logout')
 def logout():
     del session['username']
-    return redirect('/login')
+    return redirect('/index')
+
+@app.route('/')
+def index():
+    user_list = User.query.all()
+    return render_template('index.html', title="Bloggers", user_list=user_list)
 
 
 if __name__=='__main__':

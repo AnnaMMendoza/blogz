@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1><center>~Blogz Bloggers~</center></h1>
+<br>
+<hr />
+
+<!-- Lists all bloggers on the Blogz site -->
+
+    {% if user_list|length == 0 %}
+    <p>No users yet</p>
+    {% else %}
+        <ul>
+            {% for user in user_list %}
+            <li><h2><a href="/blog?user={{new_post.owner_id}}">{{new_post.owner.username}}</a></h2></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+{% endblock %}

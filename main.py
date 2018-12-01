@@ -58,6 +58,7 @@ def login():
             username_error = "Username does not exist"
 
         if user and user.password != password:
+            # flash("Password is incorrect")
             pass_error = "Password is incorrect"           
 
     return render_template('login.html', username_error=username_error, pass_error=pass_error)
@@ -89,7 +90,7 @@ def register():
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
             username_error = "Username already exists, please choose another username"
-            return render_template('register.html', username_error)
+            # return render_template('register.html', username_error)
 
     # password validation tests
         if password == "":
@@ -102,7 +103,7 @@ def register():
             pass_error = "Password length must be > 3 and < 20 characters"
 
     # password verify field MUST match password field
-        if verify != password:
+        if not verify == password:
             verifypw_error = "Password entries do not match, please re-enter"
             verify = ""
 

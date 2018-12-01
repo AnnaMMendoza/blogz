@@ -9,19 +9,19 @@
         <tr>
             <td><label for="username">Username:</label></td>
             <td>
-                <input name="username" type="text" value="{{ username }}">
-                {% if username_error|length != 0 %}
-                <span class="error">{{message}}</span>
-                {% endif %}
+                <input name="username" type="text" value="{{username}}">
+                <!-- {% if username_error|length != 0 %} -->
+                <span class="error">{{username_error}}</span>
+                <!-- {% endif %} -->
             </td>
         </tr>
         <tr>
             <td><label for="password">Password:</label></td>
             <td>
                 <input name="password" type="password">
-                {% if verify != password %}
-                <span class="error">{{pw_error}}</span>
-                {% endif %}
+                <!-- {% if password != password %} -->
+                <span class="error">{{pass_error}}</span>
+                <!-- {% endif %} -->
             </td>
         </tr>
     </table>

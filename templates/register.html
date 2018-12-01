@@ -8,7 +8,7 @@
         <tr>
             <td><label for="username">Username</label></td>
             <td>
-                <input name="username" type="text" placeholder="Username" />
+                <input name="username" type="text" placeholder="Username" value="{{username}}" />
                 {% if username_error|length != 0 %}
                 <span class="error">{{username_error}}</span>
                 {% endif %}
@@ -18,8 +18,8 @@
             <td><label for="password">Password</label></td>
             <td>
                 <input name="password" type="password" placeholder="Enter Password" />
-                {% if pw_error|length != 0 %}
-                <span class="error">{{pw_error}}</span>
+                {% if pass_error|length != 0 %}
+                <span class="error">{{pass_error}}</span>
                 {% endif %}
             </td>
         </tr>
@@ -27,7 +27,7 @@
             <td><label for="verify">Verify Password</label></td>
             <td>
                 <input name="verify" type="password" placeholder="Re-enter your password">
-                {% if password != password %}
+                {% if verify != password %}
                 <span class="error">{{verifypw_error}}</span>
                 {% endif %}
             </td>

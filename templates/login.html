@@ -9,19 +9,15 @@
         <tr>
             <td><label for="username">Username:</label></td>
             <td>
-                <input name="username" type="text" value="{{username}}">
-                <!-- {% if username_error|length != 0 %} -->
+                <input name="username" type="text" value="{{username}}" />
                 <span class="error">{{username_error}}</span>
-                <!-- {% endif %} -->
             </td>
         </tr>
         <tr>
             <td><label for="password">Password:</label></td>
             <td>
-                <input name="password" type="password">
-                <!-- {% if password != password %} -->
-                <span class="error">{{pass_error}}</span>
-                <!-- {% endif %} -->
+                <input name="password" type="password" />
+                <span class="error"><strong><em>{{pass_error}}</em></strong></span>
             </td>
         </tr>
     </table>

@@ -23,7 +23,7 @@ class Blog(db.Model):
 class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30))
+    username = db.Column(db.String(30),unique=True)
     password = db.Column(db.String(15))
     blogs = db.relationship('Blog', backref='owner')
 
@@ -31,12 +31,11 @@ class User(db.Model):
         self.username = username
         self.password = password
 
-# @app.before_request
-# def require_login():
-#     allowed_routes = ['blog', 'login', 'register', 'newpost']
-#     if request.endpoint not in allowed_routes and 'username' not in session:
-#         flash('You must be logged in!')
-#         return redirect('/login')
+@app.before_request
+def require_login():
+    allowed_routes = ['login', 'register', 'blog']
+    if request.endpoint not in allowed_routes and 'username' not in session:
+        return redirect('/login')
     
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -51,15 +50,13 @@ def login():
 
         if user and user.password == password: # searches for the username in the database
             session['username'] = username # stores the username in the session
-            flash("You are logged in!")
             return redirect('/newpost')
         
         if not user:
             username_error = "Username does not exist"
 
         if user and user.password != password:
-            # flash("Password is incorrect")
-            pass_error = "Password is incorrect"           
+            pass_error = "Password is incorrect"
 
     return render_template('login.html', username_error=username_error, pass_error=pass_error)
 
@@ -77,41 +74,38 @@ def register():
         verify = request.form['verify']
 
         # validation tests go here!
-        if not username:
+        if username == "":
             username_error = "Please enter a Username"
-
-        if " " in username:
-            username_error = "No spaces allowed in Username"
 
         if len(username) < 3 or len(username) > 20:
             username_error = "Username length must be > 3 and < 20"
 
-    # check for duplicate username
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            username_error = "Username already exists, please choose another username"
-            # return render_template('register.html', username_error)
+        for char in username:
+            if char == " ":
+                username_error = "No spaces allowed in Username"
+            else:
+                existing_user = User.query.filter_by(username=username).first()
+                if existing_user:
+                    username_error = "Username already exists, please choose another username"
 
     # password validation tests
         if password == "":
             pass_error = "Please enter a password"
+            print(pass_error)
 
         if " " in password:
-            pass_error = "Passwords may not contain spaces"
+            pass_error = "Passwords cannot have spaces"
+            print(pass_error)
 
         if len(password) < 3 or len(password) > 20:
             pass_error = "Password length must be > 3 and < 20 characters"
+            print(pass_error)
 
     # password verify field MUST match password field
-        if not verify == password:
-            verifypw_error = "Password entries do not match, please re-enter"
+        if verify != password:
+            verifypw_error = "Password entries do not match, Please re-enter your password"
+            print(verifypw_error)
             verify = ""
-
-        if " " in password:
-            verifypw_error = "Passwords may not contain spaces"
-            verify = ""
-
-        existing_user = User.query.filter_by(username=username).first()
 
         if not username_error and not pass_error and not verifypw_error:
             new_user = User(username, password)
@@ -142,25 +136,19 @@ def add_post(): # adds the post to the database, new post acceptance then redire
         title = request.form['title']
         body = request.form['body']
 
-        if title == "" and body == "":
-            title_error = "Please enter a title for your post"
-            post_error = "Please enter your blog post here"
-            return render_template('newpost.html', title=request.form['title'], body=request.form['body'], title_error=title_error, post_error=post_error)
+        # if title == "" and body == "":
+        #     title_error = "Please enter a title for your post"
+        #     post_error = "Please enter your blog post here"
+        #     return render_template('newpost.html', title=request.form['title'], body=request.form['body'], title_error=title_error, post_error=post_error)
 
         if title == "":
             title_error = "Please enter a title for your post"   
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
 
-        if len(title) > 120:
-            title_error = "Blog title is limited to 120 characters"
-
         if body == "":
             post_error = "Please enter your blog post here"
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
 
-        if len(body) > 500:
-            post_error = "Blog post is limited to 500 characters"
-    
         if not title_error and not post_error:
             new_post = Blog(title, body, owner)
             db.session.add(new_post)

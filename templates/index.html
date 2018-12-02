@@ -8,12 +8,12 @@
 
 <!-- Lists all bloggers on the Blogz site -->
 
-    {% if user_list|length == 0 %}
+    {% if users|length == 0 %}
     <p>No users yet</p>
     {% else %}
         <ul>
-            {% for user in user_list %}
-            <li><h2><a href="/blog?user={{new_post.owner_id}}">{{new_post.owner.username}}</a></h2></li>
+            {% for user in users %}
+            <li><h3><a href="/blog?user={{user.id}}">{{user.username}}</a></h3></li>
             {% endfor %}
         </ul>
     {% endif %}

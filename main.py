@@ -36,6 +36,11 @@ def require_login():
     allowed_routes = ['login', 'register', 'index', 'blog']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
+
+@app.route('/index', methods=['GET'])
+def index():
+    users = User.query.all()
+    return render_template('index.html', users=users)
     
 @app.route('/login', methods=['POST', 'GET'])
 def login():
@@ -116,11 +121,6 @@ def register():
 
     return render_template("register.html", username=username, username_error=username_error, pass_error=pass_error, verifypw_error=verifypw_error)
 
-
-@app.route('/', methods=['POST', 'GET']) # directs to the main blog posts page
-def all_posts():
-    return redirect('/blog')
-
 @app.route('/newpost', methods=['POST', 'GET'])
 def add_post(): # adds the post to the database, new post acceptance then redirects to that blog post's individual entry page
 
@@ -170,7 +170,7 @@ def blog():
         title = entry.title
         body = entry.body
         username = entry.owner.username
-        return render_template("blog.html", title=title, body=body, username=username, owner_id=owner_id, entry=entry)
+        return redirect("blog.html", title=title, body=body, username=username, owner_id=owner_id, entry=entry)
     else:
         owner = User.query.filter_by(id=user_id).first()
         entries = Blog.query.filter_by(owner=owner).order_by(Blog.id.desc()).all()
@@ -182,18 +182,13 @@ def displaypost():
 
     id = request.args.get("id")
     entry = Blog.query.filter_by(id=id).first()
+    
+    return render_template('displaypost.html', title=entry.title, body=entry.body, owner_id=entry.owner_id, username=entry.owner.username)
 
-    return render_template('displaypost.html', title=entry.title, body=entry.body)
-
-@app.route('/logout')
+@app.route('/logout') # logs the user out of the site redirects to index
 def logout():
     del session['username']
-    return redirect('/index')
-
-@app.route('/')
-def index():
-    user_list = User.query.all()
-    return render_template('index.html', title="Bloggers", user_list=user_list)
+    return redirect('/')
 
 
 if __name__=='__main__':

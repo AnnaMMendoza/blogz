@@ -32,7 +32,7 @@ class User(db.Model):
         self.password = password
 
 @app.before_request
-def require_login():
+def require_login():  # Only allows viewer (not logged in) to see certain pages only
     allowed_routes = ['login', 'register', 'index', 'blog']
     if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login')
@@ -136,12 +136,13 @@ def add_post(): # adds the post to the database, new post acceptance then redire
         title = request.form['title']
         body = request.form['body']
 
-        if title == "":
+        if len(title) == 0:
             title_error = "Please enter a title for your post"   
-            return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
 
-        if body == "":
+        if len(body) == 0:
             post_error = "Please enter your blog post here"
+
+        if title_error or post_error: # renders the form with either or both errors
             return render_template('newpost.html', title=title, title_error=title_error, body=body, post_error=post_error)
 
         if not title_error and not post_error:
@@ -151,7 +152,7 @@ def add_post(): # adds the post to the database, new post acceptance then redire
             entry = new_post.id
             return render_template('displaypost.html', title=new_post.title, body=new_post.body)
 
-    return render_template('newpost.html', title=title, body=body,  title_error=title_error, post_error=post_error)
+    return render_template('newpost.html', title=title, body=body, title_error=title_error, post_error=post_error)
 
 # display all blog posts on the main page
 @app.route('/blog', methods=['POST', 'GET'])
@@ -164,13 +165,13 @@ def blog():
         entries = Blog.query.order_by(Blog.id.desc()).all()
         return render_template('blog.html', entries=entries)
 
-    if not user_id:
+    if not user_id: # displays single blog post
         entries = Blog.query.filter_by(id=id).first()
         owner_id = entries.owner_id
         title = entry.title
         body = entry.body
         username = entry.owner.username
-        return redirect("blog.html", title=title, body=body, username=username, owner_id=owner_id, entry=entry)
+        return redirect("displaypost.html", title=title, body=body, username=username, owner_id=owner_id, entry=entry)
     else:
         owner = User.query.filter_by(id=user_id).first()
         entries = Blog.query.filter_by(owner=owner).order_by(Blog.id.desc()).all()
@@ -188,7 +189,7 @@ def displaypost():
 @app.route('/logout') # logs the user out of the site redirects to index
 def logout():
     del session['username']
-    return redirect('/')
+    return redirect('/index')
 
 
 if __name__=='__main__':
